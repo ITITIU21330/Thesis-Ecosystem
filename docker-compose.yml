@@ -1,0 +1,37 @@
+services:
+  thesis-api:
+    build: ./thesis-backend
+    container_name: thesis-api
+    ports: ["3000:3000"]
+    env_file: .env
+    volumes:
+      - ./thesis-backend:/app
+      - /app/node_modules
+      - "/Volumes/UBUNTU 24_0/Thesis-Data/logs:/app/src/logs"
+
+  db:
+    image: postgres:15-alpine
+    container_name: thesis-db
+    environment:
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: thesis_db
+    volumes:
+      - "/Volumes/UBUNTU 24_0/Thesis-Data/postgres-db:/var/lib/postgresql/data"
+
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: n8n-automation
+    ports: ["5678:5678"]
+    volumes:
+      - "/Volumes/UBUNTU 24_0/Thesis-Data/n8n-data:/home/node/.n8n"
+  strapi:
+    build: ./thesis-cms
+    container_name: thesis-cms
+    ports: ["1337:1337"]
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - ./thesis-cms:/opt/app
+      - /opt/app/node_modules 
+      - "/Volumes/UBUNTU 24_0/Thesis-Data/strapi-uploads:/opt/app/public/uploads"
+    env_file: .env
